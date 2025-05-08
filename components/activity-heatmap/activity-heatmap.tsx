@@ -78,8 +78,8 @@ export function ActivityHeatmap({ days }: ActivityHeatmapProps) {
         {monthLabels.map(({ index, label }, i) => (
           <div
             key={label + index}
-            className="flex-1 min-w-[16px] text-center"
-            style={{ marginLeft: i === 0 ? `${index * 16}px` : undefined }}
+            className="flex-1 min-w-[20px] text-center"
+            style={{ marginLeft: i === 0 ? `${index * 20}px` : undefined }}
           >
             {label}
           </div>
@@ -100,7 +100,7 @@ export function ActivityHeatmap({ days }: ActivityHeatmapProps) {
                 <Tooltip.Root key={day?.date ?? di} delayDuration={75}>
                   <Tooltip.Trigger asChild>
                     <div
-                      className={`w-4 h-4 ${getColor(day?.count ?? 0)} border border-[#161b22] focus:outline-none`}
+                      className={`w-5 h-4 ${getColor(day?.count ?? 0)} border border-[#161b22] rounded-sm m-[2px] focus:outline-none`}
                       aria-label={`${day?.count ?? 0} interactions on ${day?.date}`}
                       tabIndex={0}
                     />
@@ -125,7 +125,7 @@ export function ActivityHeatmap({ days }: ActivityHeatmapProps) {
       <div className="flex items-center gap-1 text-xs text-gray-400 mt-2 ml-10">
         <span>Less</span>
         {GITHUB_GREEN_SCALE.map((cls, i) => (
-          <span key={i} className={`w-4 h-4 ${cls} border border-[#161b22] inline-block`} />
+          <span key={i} className={`w-4 h-4 ${cls} border border-[#161b22] inline-block rounded-sm m-[2px]`} />
         ))}
         <span>More</span>
       </div>

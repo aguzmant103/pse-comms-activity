@@ -9,7 +9,12 @@ interface Tweet {
   timestamp: number | null;
 }
 
-export function NitterFetcher() {
+interface NitterFetcherProps {
+  onFetchStart: () => void;
+  onFetchComplete: (tweets: Tweet[]) => void;
+}
+
+export function NitterFetcher({ onFetchStart, onFetchComplete }: NitterFetcherProps) {
   const [tweets, setTweets] = React.useState<Tweet[]>([]);
   const [isLoading, setIsLoading] = React.useState(false);
   const [hasError, setHasError] = React.useState<string | undefined>(undefined);
@@ -21,6 +26,7 @@ export function NitterFetcher() {
     setHasError(undefined);
     setTweets([]);
     setLastCount(null);
+    onFetchStart(); // Call the onFetchStart callback
     console.log(`[NitterFetcher] Fetching tweets for @${username} via /api/nitter-tweets...`);
     try {
       const res = await fetch(`/api/nitter-tweets?username=${encodeURIComponent(username)}`);
@@ -31,6 +37,7 @@ export function NitterFetcher() {
       const recent: Tweet[] = await res.json();
       setTweets(recent);
       setLastCount(recent.length);
+      onFetchComplete(recent); // Call the onFetchComplete callback with the fetched tweets
       console.log(`[NitterFetcher] Tweets from last week (originals only): ${recent.length}`);
     } catch (e) {
       console.error("[NitterFetcher] Error fetching tweets:", e);
