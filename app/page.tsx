@@ -2,6 +2,7 @@ import Image from "next/image";
 import { ActivityHeatmap } from "../components/activity-heatmap/activity-heatmap";
 import { ActivityList } from "../components/activity-list/activity-list";
 import type { ActivityItem } from "../components/activity-list/types";
+import { NitterFetcher } from "../components/nitter-fetcher/nitter-fetcher";
 
 const mockDays = Array.from({ length: 84 }, (_, i) => ({
   date: new Date(Date.now() - (83 - i) * 24 * 60 * 60 * 1000).toISOString().slice(0, 10),
@@ -39,6 +40,9 @@ export default function Home() {
   return (
     <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
       <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start w-full">
+        <div className="w-full flex flex-col items-center">
+          <NitterFetcher />
+        </div>
         <ActivityHeatmap days={mockDays} />
         <ActivityList items={mockItems} />
       </main>
