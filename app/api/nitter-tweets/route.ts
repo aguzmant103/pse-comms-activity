@@ -1,20 +1,49 @@
 import { NextResponse } from 'next/server';
 import { fetchTweets } from 'nitter-scraper';
 
-export async function GET() {
+export async function GET(req: Request) {
   try {
-    const tweets = await fetchTweets('PrivacyScaling', 2);
+    const { searchParams } = new URL(req.url);
+    const username = searchParams.get('username') || 'PrivacyScaling';
+    console.log(`\n========== [API] Fetching for username: @${username} ==========`);
+    const tweets = await fetchTweets(username, 2);
     const oneWeekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+    let tweetCount = 0;
+    let repostCount = 0;
+    let filteredCount = 0;
+    let tweetLines: string[] = [];
+    let repostLines: string[] = [];
+    tweets.forEach((t) => {
+      const isRecent = t.timestamp && t.timestamp * 1000 >= oneWeekAgo;
+      const isOwnPost = t.username === username;
+      const ownSymbol = isOwnPost ? '🟢' : '⚪';
+      const recentSymbol = isRecent ? '🕒' : '⏳';
+      const line = `${ownSymbol}${recentSymbol} ${t.id} | ${t.created_at} | ${t.username} | ${t.text?.replace(/\s+/g, ' ').slice(0, 60)}`;
+      if (isOwnPost && isRecent) {
+        tweetLines.push(line);
+        tweetCount++;
+      } else if (!isOwnPost) {
+        repostLines.push(line);
+        repostCount++;
+      } else {
+        filteredCount++;
+      }
+    });
+    if (tweetLines.length) {
+      console.log("\n--- Original Tweets (🟢own, 🕒recent) ---");
+      tweetLines.forEach((l) => console.log(l));
+    }
+    if (repostLines.length) {
+      console.log("\n--- Filtered Reposts (⚪not own) ---");
+      repostLines.forEach((l) => console.log(l));
+    }
+    if (filteredCount) {
+      console.log(`\n--- Filtered (not recent): ${filteredCount}`);
+    }
+    console.log(`\n========== [SUMMARY] Originals: ${tweetCount} | Reposts: ${repostCount} | Not recent: ${filteredCount} ==========`);
     const recent = tweets.filter((t) => {
       const isRecent = t.timestamp && t.timestamp * 1000 >= oneWeekAgo;
-      const isOwnPost = t.username === 'PrivacyScaling';
-      // Log for debugging
-      console.log(
-        `[TWEET] id: ${t.id}, created_at: ${t.created_at}, username: ${t.username}, isOwnPost: ${isOwnPost}, isRecent: ${isRecent}, text: ${t.text?.slice(0, 80)}`
-      );
-      if (!isOwnPost) {
-        console.log(`[FILTERED REPOST] id: ${t.id}, username: ${t.username}, text: ${t.text?.slice(0, 80)}`);
-      }
+      const isOwnPost = t.username === username;
       return isRecent && isOwnPost;
     });
     return NextResponse.json(recent);
